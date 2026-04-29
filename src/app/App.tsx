@@ -126,7 +126,7 @@ export default function App() {
               fontSize: '0.8rem', fontWeight: 700, color: 'white',
             }}>RJ</div>
             <span style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', color: C.accentDark }}>
-              ReThreaded
+              Customize your jeans now!
             </span>
             <span style={{
               fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.08em',

@@ -26,21 +26,21 @@ export function AdminPage() {
   const [tab, setTab] = useState<Tab>('inventory');
 
   // ── Patch Inventory state ────────────────────────────────
-  const [patches, setPatches]       = useState<PatchRecord[]>([]);
+  const [patches, setPatches] = useState<PatchRecord[]>([]);
   const [loadingList, setLoadingList] = useState(true);
-  const [newName, setNewName]       = useState('');
-  const [newPrice, setNewPrice]     = useState('');
-  const [imageFile, setImageFile]   = useState<File | null>(null);
+  const [newName, setNewName] = useState('');
+  const [newPrice, setNewPrice] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState('');
-  const [adding, setAdding]         = useState(false);
-  const [addError, setAddError]     = useState('');
+  const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   // ── Design Viewer state ──────────────────────────────────
-  const [query, setQuery]           = useState('');
-  const [searching, setSearching]   = useState(false);
+  const [query, setQuery] = useState('');
+  const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
-  const [design, setDesign]         = useState<DesignRecord | null>(null);
+  const [design, setDesign] = useState<DesignRecord | null>(null);
   const [designPatches, setDesignPatches] = useState<DesignPatch[]>([]);
 
   // ── Load patches list ────────────────────────────────────
@@ -148,7 +148,7 @@ export function AdminPage() {
   const patchMap = Object.fromEntries(patches.map((p) => [p.id, { name: p.name, imageUrl: p.image_url }]));
   const enriched = designPatches.map((p) => ({
     patchId: p.patch_id,
-    name:     patchMap[p.patch_id]?.name ?? LEGACY_PATCH_MAP[p.patch_id]?.name ?? p.patch_id,
+    name: patchMap[p.patch_id]?.name ?? LEGACY_PATCH_MAP[p.patch_id]?.name ?? p.patch_id,
     imageUrl: patchMap[p.patch_id]?.imageUrl ?? LEGACY_PATCH_MAP[p.patch_id]?.imageUrl ?? '',
     x: p.coord_x_percent, y: p.coord_y_percent,
     side: (p.side ?? 'front') as PatchSide,
@@ -187,7 +187,7 @@ export function AdminPage() {
             fontSize: '0.75rem', fontWeight: 700, color: 'white',
           }}>RJ</div>
           <span style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem', color: C.accentDark }}>
-            ReThreaded
+            Customize your jeans now!
           </span>
           <span style={{
             fontSize: '0.62rem', fontWeight: 700, color: 'white',
@@ -428,11 +428,11 @@ export function AdminPage() {
                 {/* Metadata */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12, marginBottom: 24 }}>
                   {[
-                    { label: 'Design ID',    value: design.design_id,                                        mono: true },
-                    { label: 'Size',         value: design.base_size },
-                    { label: 'Total Price',  value: `RM ${Number(design.total_price).toFixed(2)}` },
-                    { label: 'Date',         value: new Date(design.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) },
-                    { label: 'Patches',      value: `${designPatches.length} total` },
+                    { label: 'Design ID', value: design.design_id, mono: true },
+                    { label: 'Size', value: design.base_size },
+                    { label: 'Total Price', value: `RM ${Number(design.total_price).toFixed(2)}` },
+                    { label: 'Date', value: new Date(design.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) },
+                    { label: 'Patches', value: `${designPatches.length} total` },
                   ].map(({ label, value, mono }) => (
                     <div key={label} style={{ background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 12, padding: '12px 14px' }}>
                       <p style={{ margin: '0 0 4px', fontSize: '0.65rem', fontWeight: 600, color: C.accentLight, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
@@ -448,7 +448,7 @@ export function AdminPage() {
                   </h2>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                     <ReadOnlyCanvas patches={enriched} side="front" label="Front View" />
-                    <ReadOnlyCanvas patches={enriched} side="back"  label="Back View" />
+                    <ReadOnlyCanvas patches={enriched} side="back" label="Back View" />
                   </div>
 
                   {/* Patch table */}
