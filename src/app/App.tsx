@@ -29,7 +29,7 @@ const C = {
 export default function App() {
   // ── Patches from DB ─────────────────────────────────────────────────
   const [availablePatches, setAvailablePatches] = useState<PatchRecord[]>([]);
-  const [patchesLoading, setPatchesLoading]     = useState(true);
+  const [patchesLoading, setPatchesLoading] = useState(true);
 
   useEffect(() => {
     supabase
@@ -44,19 +44,19 @@ export default function App() {
   }, []);
 
   // ── Design state ─────────────────────────────────────────────────────
-  const [placedPatches, setPlacedPatches]   = useState<PlacedPatch[]>([]);
-  const [currentSide, setCurrentSide]       = useState<PatchSide>('front');
-  const [showModal, setShowModal]           = useState(false);
-  const [designId, setDesignId]             = useState('');
-  const [isSubmitting, setIsSubmitting]     = useState(false);
-  const [error, setError]                   = useState<string | null>(null);
-  const [baseSize, setBaseSize]             = useState<'S' | 'M' | 'L'>('M');
+  const [placedPatches, setPlacedPatches] = useState<PlacedPatch[]>([]);
+  const [currentSide, setCurrentSide] = useState<PatchSide>('front');
+  const [showModal, setShowModal] = useState(false);
+  const [designId, setDesignId] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [baseSize, setBaseSize] = useState<'S' | 'M' | 'L'>('M');
 
   const totalPrice = BASE_JEANS_PRICE + placedPatches.reduce((sum, p) => sum + p.price, 0);
 
-  const handlePatchAdded  = (patch: PlacedPatch) => setPlacedPatches((prev) => [...prev, patch]);
+  const handlePatchAdded = (patch: PlacedPatch) => setPlacedPatches((prev) => [...prev, patch]);
   const handleRemovePatch = (id: string) => setPlacedPatches((prev) => prev.filter((p) => p.id !== id));
-  const handleMovePatch   = (id: string, x: number, y: number) =>
+  const handleMovePatch = (id: string, x: number, y: number) =>
     setPlacedPatches((prev) => prev.map((p) => (p.id === id ? { ...p, x, y } : p)));
   const handleFlipSide = () =>
     setCurrentSide((s) => (s === 'front' ? 'back' : 'front'));
@@ -81,11 +81,11 @@ export default function App() {
         .from('design_patches')
         .insert(
           placedPatches.map((p) => ({
-            design_id:       designRow.id,
-            patch_id:        p.patchId,   // UUID from patches table
+            design_id: designRow.id,
+            patch_id: p.patchId,   // UUID from patches table
             coord_x_percent: p.x,
             coord_y_percent: p.y,
-            side:            p.side,
+            side: p.side,
           }))
         );
       if (patchError) throw patchError;
@@ -103,7 +103,7 @@ export default function App() {
   };
 
   const frontCount = placedPatches.filter((p) => p.side === 'front').length;
-  const backCount  = placedPatches.filter((p) => p.side === 'back').length;
+  const backCount = placedPatches.filter((p) => p.side === 'back').length;
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -226,7 +226,7 @@ export default function App() {
                   <span style={{ fontSize: '2rem' }}>🪡</span>
                   <span style={{ fontSize: '0.85rem', color: C.accentLight, fontWeight: 500 }}>No patches available</span>
                   <span style={{ fontSize: '0.72rem', color: '#D97706' }}>
-                    Add patches in the Admin Dashboard to get started
+                    Stay tuned for more soon!
                   </span>
                 </div>
               ) : (
