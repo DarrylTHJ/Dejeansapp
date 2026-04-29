@@ -27,11 +27,11 @@ const C = {
 };
 
 export function AdminPage() {
-  const [query, setQuery]       = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState<string | null>(null);
-  const [design, setDesign]     = useState<DesignRecord | null>(null);
-  const [patches, setPatches]   = useState<PatchRecord[]>([]);
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [design, setDesign] = useState<DesignRecord | null>(null);
+  const [patches, setPatches] = useState<PatchRecord[]>([]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,16 +76,16 @@ export function AdminPage() {
 
   // Build patch list with image URLs for the ReadOnlyCanvas
   const enrichedPatches = patches.map((p) => ({
-    patchId:  p.patch_id,
+    patchId: p.patch_id,
     imageUrl: PATCH_IMAGE_MAP[p.patch_id] ?? '',
-    name:     AVAILABLE_PATCHES.find((a) => a.id === p.patch_id)?.name ?? p.patch_id,
-    x:        p.coord_x_percent,
-    y:        p.coord_y_percent,
-    side:     (p.side ?? 'front') as PatchSide,
+    name: AVAILABLE_PATCHES.find((a) => a.id === p.patch_id)?.name ?? p.patch_id,
+    x: p.coord_x_percent,
+    y: p.coord_y_percent,
+    side: (p.side ?? 'front') as PatchSide,
   }));
 
   const frontPatches = enrichedPatches.filter((p) => p.side === 'front');
-  const backPatches  = enrichedPatches.filter((p) => p.side === 'back');
+  const backPatches = enrichedPatches.filter((p) => p.side === 'back');
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, fontFamily: "'Inter', sans-serif" }}>
@@ -106,7 +106,7 @@ export function AdminPage() {
             fontSize: '0.75rem', fontWeight: 700, color: 'white',
           }}>RJ</div>
           <span style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem', color: C.accentDark }}>
-            ReThreaded
+            Design Jeans Here!
           </span>
           <span style={{
             fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.1em',
@@ -205,11 +205,11 @@ export function AdminPage() {
               gap: 14, marginBottom: 32,
             }}>
               {[
-                { icon: <Package size={18} />, label: 'Design ID',   value: design.design_id, mono: true },
-                { icon: <Ruler size={18} />,   label: 'Base Size',   value: design.base_size },
+                { icon: <Package size={18} />, label: 'Design ID', value: design.design_id, mono: true },
+                { icon: <Ruler size={18} />, label: 'Base Size', value: design.base_size },
                 { icon: <DollarSign size={18} />, label: 'Total Price', value: `RM ${Number(design.total_price).toFixed(2)}` },
-                { icon: <Calendar size={18} />, label: 'Created',    value: new Date(design.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) },
-                { icon: <Layers size={18} />,  label: 'Patches',     value: `${patches.length} total (${frontPatches.length} front / ${backPatches.length} back)` },
+                { icon: <Calendar size={18} />, label: 'Created', value: new Date(design.created_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) },
+                { icon: <Layers size={18} />, label: 'Patches', value: `${patches.length} total (${frontPatches.length} front / ${backPatches.length} back)` },
               ].map(({ icon, label, value, mono }) => (
                 <div key={label} style={{
                   background: C.panel, border: `1.5px solid ${C.border}`, borderRadius: 14,
@@ -235,7 +235,7 @@ export function AdminPage() {
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                 <ReadOnlyCanvas patches={enrichedPatches} side="front" label="Front View" />
-                <ReadOnlyCanvas patches={enrichedPatches} side="back"  label="Back View"  />
+                <ReadOnlyCanvas patches={enrichedPatches} side="back" label="Back View" />
               </div>
 
               {/* Patch list */}
