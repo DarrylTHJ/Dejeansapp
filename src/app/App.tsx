@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { Loader2 } from 'lucide-react';
 import { DraggablePatch } from './components/DraggablePatch';
 import { JeansCanvas } from './components/JeansCanvas';
 import { SuccessModal } from './components/SuccessModal';
 import { supabase } from '../lib/supabaseClient';
-import { AVAILABLE_PATCHES, BASE_JEANS_PRICE } from './constants/patches';
-import type { PatchSide } from './constants/patches';
+import { BASE_JEANS_PRICE } from './constants/patches';
+import type { PatchSide, PatchRecord } from './constants/patches';
 
 interface PlacedPatch {
   id: string;
@@ -26,19 +27,36 @@ const C = {
 };
 
 export default function App() {
-  const [placedPatches, setPlacedPatches] = useState<PlacedPatch[]>([]);
-  const [currentSide, setCurrentSide] = useState<PatchSide>('front');
-  const [showModal, setShowModal] = useState(false);
-  const [designId, setDesignId] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [baseSize, setBaseSize] = useState<'S' | 'M' | 'L'>('M');
+  // ── Patches from DB ─────────────────────────────────────────────────
+  const [availablePatches, setAvailablePatches] = useState<PatchRecord[]>([]);
+  const [patchesLoading, setPatchesLoading]     = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from('patches')
+      .select('id, name, price, image_url, is_available, created_at')
+      .eq('is_available', true)
+      .order('created_at', { ascending: true })
+      .then(({ data, error }) => {
+        if (!error && data) setAvailablePatches(data as PatchRecord[]);
+        setPatchesLoading(false);
+      });
+  }, []);
+
+  // ── Design state ─────────────────────────────────────────────────────
+  const [placedPatches, setPlacedPatches]   = useState<PlacedPatch[]>([]);
+  const [currentSide, setCurrentSide]       = useState<PatchSide>('front');
+  const [showModal, setShowModal]           = useState(false);
+  const [designId, setDesignId]             = useState('');
+  const [isSubmitting, setIsSubmitting]     = useState(false);
+  const [error, setError]                   = useState<string | null>(null);
+  const [baseSize, setBaseSize]             = useState<'S' | 'M' | 'L'>('M');
 
   const totalPrice = BASE_JEANS_PRICE + placedPatches.reduce((sum, p) => sum + p.price, 0);
 
-  const handlePatchAdded = (patch: PlacedPatch) => setPlacedPatches((prev) => [...prev, patch]);
+  const handlePatchAdded  = (patch: PlacedPatch) => setPlacedPatches((prev) => [...prev, patch]);
   const handleRemovePatch = (id: string) => setPlacedPatches((prev) => prev.filter((p) => p.id !== id));
-  const handleMovePatch = (id: string, x: number, y: number) =>
+  const handleMovePatch   = (id: string, x: number, y: number) =>
     setPlacedPatches((prev) => prev.map((p) => (p.id === id ? { ...p, x, y } : p)));
   const handleFlipSide = () =>
     setCurrentSide((s) => (s === 'front' ? 'back' : 'front'));
@@ -63,11 +81,11 @@ export default function App() {
         .from('design_patches')
         .insert(
           placedPatches.map((p) => ({
-            design_id: designRow.id,
-            patch_id: p.patchId,
+            design_id:       designRow.id,
+            patch_id:        p.patchId,   // UUID from patches table
             coord_x_percent: p.x,
             coord_y_percent: p.y,
-            side: p.side,   // ← now stored
+            side:            p.side,
           }))
         );
       if (patchError) throw patchError;
@@ -85,7 +103,7 @@ export default function App() {
   };
 
   const frontCount = placedPatches.filter((p) => p.side === 'front').length;
-  const backCount = placedPatches.filter((p) => p.side === 'back').length;
+  const backCount  = placedPatches.filter((p) => p.side === 'back').length;
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -99,17 +117,16 @@ export default function App() {
           boxShadow: '0 2px 12px rgba(180,130,30,0.08)',
           position: 'sticky', top: 0, zIndex: 10,
         }}>
-          {/* Brand */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
               width: 36, height: 36, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #FCD34D, #F59E0B)',
+              background: 'linear-gradient(135deg,#FCD34D,#F59E0B)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 2px 8px rgba(245,158,11,0.35)',
               fontSize: '0.8rem', fontWeight: 700, color: 'white',
             }}>RJ</div>
             <span style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', color: C.accentDark }}>
-              Design your Jeans here!
+              ReThreaded
             </span>
             <span style={{
               fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.08em',
@@ -119,15 +136,12 @@ export default function App() {
             }}>Custom Denim</span>
           </div>
 
-          {/* Size selector */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: '0.8rem', color: C.accentLight, fontWeight: 500 }}>Size:</span>
             {(['S', 'M', 'L'] as const).map((size) => (
               <button
-                key={size}
-                id={`size-btn-${size}`}
-                onClick={() => setBaseSize(size)}
-                aria-pressed={baseSize === size}
+                key={size} id={`size-btn-${size}`}
+                onClick={() => setBaseSize(size)} aria-pressed={baseSize === size}
                 style={{
                   width: 34, height: 34, borderRadius: '50%',
                   border: `1.5px solid ${baseSize === size ? C.accent : C.border}`,
@@ -141,7 +155,6 @@ export default function App() {
             ))}
           </div>
 
-          {/* Price pill */}
           <div style={{
             padding: '8px 20px',
             background: 'linear-gradient(135deg,#FEF3C7,#FDE68A)',
@@ -183,7 +196,7 @@ export default function App() {
 
           <div style={{ width: 1, background: C.border, margin: '16px 0' }} />
 
-          {/* Right — Inventory */}
+          {/* Right — Patch Inventory */}
           <div style={{
             flex: '0 0 40%', display: 'flex', flexDirection: 'column',
             padding: '16px 24px 16px 16px', background: C.panel,
@@ -199,11 +212,36 @@ export default function App() {
 
             {/* Patch grid */}
             <div style={{ flex: 1, overflowY: 'auto', paddingRight: 4 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                {AVAILABLE_PATCHES.map((patch) => (
-                  <DraggablePatch key={patch.id} {...patch} />
-                ))}
-              </div>
+              {patchesLoading ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 10 }}>
+                  <Loader2 size={28} color={C.accentLight} style={{ animation: 'spin 1s linear infinite' }} />
+                  <span style={{ fontSize: '0.8rem', color: C.accentLight }}>Loading patches…</span>
+                </div>
+              ) : availablePatches.length === 0 ? (
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  height: '100%', flexDirection: 'column', gap: 8,
+                  textAlign: 'center', padding: 20,
+                }}>
+                  <span style={{ fontSize: '2rem' }}>🪡</span>
+                  <span style={{ fontSize: '0.85rem', color: C.accentLight, fontWeight: 500 }}>No patches available</span>
+                  <span style={{ fontSize: '0.72rem', color: '#D97706' }}>
+                    Add patches in the Admin Dashboard to get started
+                  </span>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  {availablePatches.map((patch) => (
+                    <DraggablePatch
+                      key={patch.id}
+                      id={patch.id}
+                      name={patch.name}
+                      price={patch.price}
+                      imageUrl={patch.image_url}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Action area */}
@@ -216,7 +254,6 @@ export default function App() {
                 }}>⚠️ {error}</div>
               )}
 
-              {/* Front/Back patch summary */}
               {placedPatches.length > 0 && (
                 <div style={{
                   marginBottom: 12, padding: '10px 14px',
@@ -282,6 +319,7 @@ export default function App() {
           designId={designId}
         />
       </div>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </DndProvider>
   );
 }

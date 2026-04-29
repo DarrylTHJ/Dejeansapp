@@ -1,18 +1,25 @@
-// Shared patch catalogue — used by both the customer app and the admin viewer
-export const AVAILABLE_PATCHES = [
-  { id: 'patch-1', name: 'Flower',    price: 8.50,  imageUrl: '/patches/flower.png' },
-  { id: 'patch-2', name: 'Star',      price: 6.00,  imageUrl: '/patches/star.png' },
-  { id: 'patch-3', name: 'Peace',     price: 7.50,  imageUrl: '/patches/peace.png' },
-  { id: 'patch-4', name: 'Moon',      price: 9.00,  imageUrl: '/patches/moon.png' },
-  { id: 'patch-5', name: 'Heart',     price: 5.50,  imageUrl: '/patches/heart.png' },
-  { id: 'patch-6', name: 'Butterfly', price: 10.00, imageUrl: '/patches/butterfly.png' },
-] as const;
-
 export const BASE_JEANS_PRICE = 45.00;
 
 export type PatchSide = 'front' | 'back';
 
-// Quick lookup: patch_id → imageUrl (for admin viewer)
-export const PATCH_IMAGE_MAP: Record<string, string> = Object.fromEntries(
-  AVAILABLE_PATCHES.map((p) => [p.id, p.imageUrl])
-);
+// ── Legacy map for designs saved before the DB-driven patches ────────────
+// Old designs stored patch_id as 'patch-1' through 'patch-6'.
+// This mapping lets the admin viewer still render those old designs.
+export const LEGACY_PATCH_MAP: Record<string, { name: string; imageUrl: string }> = {
+  'patch-1': { name: 'Flower',    imageUrl: '/patches/flower.png' },
+  'patch-2': { name: 'Star',      imageUrl: '/patches/star.png' },
+  'patch-3': { name: 'Peace',     imageUrl: '/patches/peace.png' },
+  'patch-4': { name: 'Moon',      imageUrl: '/patches/moon.png' },
+  'patch-5': { name: 'Heart',     imageUrl: '/patches/heart.png' },
+  'patch-6': { name: 'Butterfly', imageUrl: '/patches/butterfly.png' },
+};
+
+// ── Patch type as returned from Supabase ─────────────────────────────────
+export interface PatchRecord {
+  id: string;
+  name: string;
+  price: number;
+  image_url: string;
+  is_available: boolean;
+  created_at: string;
+}
