@@ -152,7 +152,7 @@ export function SuccessModal({ isOpen, onClose, designId }: SuccessModalProps) {
 
             <a
               id="shopee-checkout-btn"
-              href="https://shopee.com.my"
+              href="https://shopee.com.my/product/737889337/52209752525/"
               target="_blank"
               rel="noopener noreferrer"
               style={{
